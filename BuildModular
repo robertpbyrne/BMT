@@ -1,0 +1,173 @@
+"""
+NAME: BuildModularTemplate (UI)
+ICON: icon.png
+KEYBOARD_SHORTCUT: 
+SCOPE:
+Builds Modular template (UI)
+
+"""
+
+# The following symbols are added when run as a shelf item script:
+# exit():      Allows 'error-free' early exit from the script.
+# console_print(message, raiseTab=False):
+#              Prints the given message to the result area of the largest
+#              available Python tab.
+#              If raiseTab is passed as True, the tab will be raised to the
+#              front in its pane.
+#              If no Python tab exists, prints the message to the shell.
+# console_clear(raiseTab=False):
+#              Clears the result area of the largest available Python tab.
+#              If raiseTab is passed as True, the tab will be raised to the
+#              front in its pane.
+
+import sys
+from PyQt4 import QtGui,QtCore
+
+modules = {'showTemplate','tweakTemplate','prepassTemplate','passTemplate'}
+
+class Window(QtGui.QMainWindow):
+	def __init__(self):
+		super(Window,self).__init__()
+
+		self.setGeometry(50,50,300,210)
+		self.setWindowTitle('Build Modular Template')
+		self.setWindowIcon(QtGui.QIcon('viewButtonGray.png'))
+		self.home()
+
+	def home(self):
+		
+
+		ModuleOverridesLabel = QtGui.QLabel('Module Overrides',self)
+		ModuleOverridesLabel.move(80,5)
+
+		# Show module toggle/combobox UI
+		self.ShowModule_toggle = QtGui.QPushButton("Enable",self)
+		self.ShowModule_toggle.move(8,35)
+		self.ShowModule_toggle.resize(58,25)
+		self.ShowModule_toggle.setCheckable(True)
+		self.ShowModule_toggle.toggle()
+		self.ShowModule_toggle.clicked.connect(self.toggle_showModule)
+
+		self.ShowModule_comboBox = QtGui.QComboBox(self)
+		self.ShowModule_comboBox.setGeometry(76,35,216,25)
+		self.ShowModule_comboBox.addItem("Show Module") # <- will populate with show data
+
+		# Tweak module toggle/combobox UI
+		self.TweakModule_toggle = QtGui.QPushButton("Enable",self)
+		self.TweakModule_toggle.move(8,67)
+		self.TweakModule_toggle.resize(58,25)
+		self.TweakModule_toggle.setCheckable(True)
+		self.TweakModule_toggle.toggle()
+		self.TweakModule_toggle.clicked.connect(self.toggle_tweakModule)
+
+		self.TweakModule_comboBox = QtGui.QComboBox(self)
+		self.TweakModule_comboBox.setGeometry(76,66,216,25)
+		self.TweakModule_comboBox.addItem("GEN Tweak Module") # <- will populate with show data
+		self.TweakModule_comboBox.addItem("JUN Tweak Module") # <- will populate with show data
+
+		# PrePass module toggle/combobox UI
+		self.PrePassModule_toggle = QtGui.QPushButton("Enable",self)
+		self.PrePassModule_toggle.move(8,98)
+		self.PrePassModule_toggle.resize(58,25)
+		self.PrePassModule_toggle.setCheckable(True)
+		self.PrePassModule_toggle.toggle()
+		self.PrePassModule_toggle.clicked.connect(self.toggle_prepassModule)
+
+		self.PrePassModule_comboBox = QtGui.QComboBox(self)
+		self.PrePassModule_comboBox.setGeometry(76,97,216,25)
+		self.PrePassModule_comboBox.addItem("GEN Pre-pass Module") # <- will populate with show data
+
+		# Pass module toggle/combobox UI
+		self.PassModule_toggle = QtGui.QPushButton("Enable",self)
+		self.PassModule_toggle.move(8,130)
+		self.PassModule_toggle.resize(58,25)
+		self.PassModule_toggle.setCheckable(True)
+		self.PassModule_toggle.toggle()
+		self.PassModule_toggle.clicked.connect(self.toggle_passModule)
+		
+		self.PassModule_comboBox = QtGui.QComboBox(self)
+		self.PassModule_comboBox.setGeometry(76,129,216,25)
+		self.PassModule_comboBox.addItem("GEN Pass Module") # <- will populate with show data
+		self.PassModule_comboBox.addItem("OCN Pass Module") # <- will populate with show data
+		self.PassModule_comboBox.addItem("JUN Pass Module") # <- will populate with show data
+
+		build_btn = QtGui.QPushButton('Build',self)
+		build_btn.clicked.connect(self.buildIt)
+		build_btn.resize(150,40)
+		build_btn.move(0,167)
+		
+		cancel_btn = QtGui.QPushButton('Cancel',self)
+		cancel_btn.clicked.connect(self.cancel)
+		cancel_btn.resize(150,40)
+		cancel_btn.move(150,167)
+
+		self.progress = QtGui.QProgressBar(self)
+		self.progress.setGeometry(0,330,300,20)
+
+		self.show()
+
+	def toggle_showModule(self,text):
+		if self.ShowModule_toggle.isChecked():
+			self.ShowModule_toggle.setText('Enable')
+			self.ShowModule_comboBox.setEnabled(True)
+			useShowTemplate = True 
+		else:
+			self.ShowModule_toggle.setText('Disable')
+			self.ShowModule_comboBox.setEnabled(False)
+			useShowTemplate = False
+
+	def toggle_tweakModule(self,text):
+		if self.TweakModule_toggle.isChecked():
+			self.TweakModule_toggle.setText('Enable')
+			self.TweakModule_comboBox.setEnabled(True)
+			self.useTweakModule = True 
+		else:
+			self.TweakModule_toggle.setText('Disable')
+			self.TweakModule_comboBox.setEnabled(False)
+			self.useTweakModule = False
+
+	def toggle_prepassModule(self,text):
+		if self.PrePassModule_toggle.isChecked():
+			self.PrePassModule_toggle.setText('Enable')
+			self.PrePassModule_comboBox.setEnabled(True)
+			self.usePrePassModule = True 
+		else:
+			self.PrePassModule_toggle.setText('Disable')
+			self.PrePassModule_comboBox.setEnabled(False)
+			self.usePrePassModule = False
+
+	def toggle_passModule(self,text):
+		if self.PassModule_toggle.isChecked():
+			self.PassModule_toggle.setText('Enable')
+			self.PassModule_comboBox.setEnabled(True)
+			self.usePassModule = True 
+		else:
+			self.PassModule_toggle.setText('Disable')
+			self.PassModule_comboBox.setEnabled(False)
+			self.usePassModule = False
+
+	def cancel(self):
+
+		choice = QtGui.QMessageBox.question(self,'BuildModularTemplate',"Close app?",QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+		if choice == QtGui.QMessageBox.Yes:
+			self.hide()
+		else:
+			pass
+
+	def buildIt(self):
+		print('building modular template!')
+		
+		print 'showMod: '
+		print 'tweakMod: '
+
+		self.completed = 0
+		
+		while self.completed < 100:
+			self.completed += 0.0001
+			self.progress.setValue(self.completed)
+
+GUI = Window()
+
+
+
+
